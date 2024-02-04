@@ -17,15 +17,15 @@ if(process.env.LISTEN === undefined) {
     }
 }
 const LISTEN_HOST = process.env.LISTEN_HOST || 'localhost';
-const API_KEY = process.env.API_KEY;
+// const API_KEY = process.env.API_KEY;
 const DOWNLOAD_PATH = process.env.DOWNLOAD_PATH || '/download';
 const LISTEN_CHMOD = process.env.LISTEN_CHMOD;
 
-if(!API_KEY) {
-    console.error('No API key provided!');
-    process.exitCode = 1;
-    return;
-}
+// if(!API_KEY) {
+//     console.error('No API key provided!');
+//     process.exitCode = 1;
+//     return;
+// }
 
 const server = http.createServer(async (req, res) => {
     let things = urlParse(req.url, true);
@@ -38,7 +38,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     const gameMode = things.query.mode ? parseInt(things.query.mode) : 0;
-    if(!things.query.beatmapId || !things.query.userId || isNaN(gameMode) || gameMode < 0 || gameMode > 3) {
+    if(!things.query.beatmapId || !things.query.api_key || !things.query.userId || isNaN(gameMode) || gameMode < 0 || gameMode > 3) {
         res.statusCode = 400;
         res.setHeader('Content-Type', 'text/plain');
         res.end('Missing or invalid parameters');
@@ -46,7 +46,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     try {
-        const data = await downloader.download(API_KEY, things.query.userId, things.query.beatmapId, things.query.beatmapHash, gameMode, things.query.mods);
+        const data = await downloader.download(things.query.api_key, things.query.userId, things.query.beatmapId, things.query.beatmapHash, gameMode, things.query.mods);
         let fileName = data.score.score_id + '.osr';
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/octet-stream');
